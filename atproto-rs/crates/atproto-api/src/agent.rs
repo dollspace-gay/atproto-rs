@@ -39,13 +39,12 @@ pub enum AgentError {
 
 /// High-level AT Protocol agent.
 ///
-/// Wraps an XRPC client with session management and convenience methods
-/// for common Bluesky/AT Protocol operations.
-///
-/// Uses `RwLock` internally so multiple concurrent reads (queries) proceed
-/// in parallel — only authentication state changes require exclusive access.
+/// Auth state lives in a single `RwLock<Option<Session>>`. The XRPC client
+/// is never mutated after construction — auth headers are passed per-request.
+/// This avoids token leaks, giant-lock contention, and split-lock atomicity
+/// gaps that arise from storing auth in the client's default headers.
 pub struct Agent {
-    client: Arc<RwLock<XrpcClient>>,
+    client: XrpcClient,
     session: Arc<RwLock<Option<Session>>>,
 }
 
@@ -54,14 +53,14 @@ impl Agent {
     pub fn new(service: impl AsRef<str>) -> Result<Self, AgentError> {
         let client = XrpcClient::new(service)?;
         Ok(Agent {
-            client: Arc::new(RwLock::new(client)),
+            client,
             session: Arc::new(RwLock::new(None)),
         })
     }
 
     /// Get the service URL string.
-    pub async fn service(&self) -> String {
-        self.client.read().await.service_url().to_string()
+    pub fn service(&self) -> String {
+        self.client.service_url().to_string()
     }
 
     /// Get the current session's DID, if logged in.
@@ -76,6 +75,20 @@ impl Agent {
 
     // --- Authentication ---
 
+    /// Build per-request `CallOptions` carrying the current access token.
+    /// Returns `None` if not authenticated.
+    async fn auth_call_options(&self) -> Option<CallOptions> {
+        let guard = self.session.read().await;
+        guard.as_ref().map(|s| {
+            let mut headers = HeadersMap::new();
+            headers.insert("Authorization".into(), format!("Bearer {}", s.access_jwt));
+            CallOptions {
+                encoding: None,
+                headers: Some(headers),
+            }
+        })
+    }
+
     /// Log in with identifier (handle or DID) and password.
     pub async fn login(&self, identifier: &str, password: &str) -> Result<Session, AgentError> {
         let body = serde_json::json!({
@@ -83,26 +96,19 @@ impl Agent {
             "password": password,
         });
 
-        let data = {
-            let client = self.client.read().await;
-            let response = client
-                .procedure(
-                    "com.atproto.server.createSession",
-                    None,
-                    Some(XrpcBody::Json(body)),
-                    None,
-                )
-                .await?;
-            response.data
-        };
+        let response = self
+            .client
+            .procedure(
+                "com.atproto.server.createSession",
+                None,
+                Some(XrpcBody::Json(body)),
+                None,
+            )
+            .await?;
 
-        let session: Session = serde_json::from_value(data)?;
+        let session: Session = serde_json::from_value(response.data)?;
 
-        {
-            let mut client = self.client.write().await;
-            client.set_header("Authorization", format!("Bearer {}", session.access_jwt));
-        }
-
+        // Atomically commit session in a single write lock
         *self.session.write().await = Some(session.clone());
         Ok(session)
     }
@@ -114,36 +120,29 @@ impl Agent {
     pub async fn resume_session(&self, session: Session) -> Result<(), AgentError> {
         // Verify the session is valid by calling getSession with the provided token,
         // WITHOUT updating the agent's state first. Use a per-request auth header.
-        let verified_did = {
-            let client = self.client.read().await;
-            let mut headers = HeadersMap::new();
-            headers.insert(
-                "Authorization".into(),
-                format!("Bearer {}", session.access_jwt),
-            );
-            let opts = CallOptions {
-                encoding: None,
-                headers: Some(headers),
-            };
-            let response = client
-                .query("com.atproto.server.getSession", None, Some(&opts))
-                .await?;
-            response
-                .data
-                .get("did")
-                .and_then(|v| v.as_str())
-                .map(|s| s.to_string())
+        let mut headers = HeadersMap::new();
+        headers.insert(
+            "Authorization".into(),
+            format!("Bearer {}", session.access_jwt),
+        );
+        let opts = CallOptions {
+            encoding: None,
+            headers: Some(headers),
         };
+        let response = self
+            .client
+            .query("com.atproto.server.getSession", None, Some(&opts))
+            .await?;
+        let verified_did = response
+            .data
+            .get("did")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
 
-        // Verification succeeded — now commit state
+        // Verification succeeded — atomically commit state in a single write lock
         let mut committed = session;
         if let Some(did) = verified_did {
             committed.did = did;
-        }
-
-        {
-            let mut client = self.client.write().await;
-            client.set_header("Authorization", format!("Bearer {}", committed.access_jwt));
         }
         *self.session.write().await = Some(committed);
 
@@ -151,6 +150,10 @@ impl Agent {
     }
 
     /// Refresh the current session tokens.
+    ///
+    /// Uses a per-request header for the refresh call so the refresh JWT is
+    /// never exposed as the global auth state. The new session is committed
+    /// atomically in a single write lock.
     pub async fn refresh_session(&self) -> Result<Session, AgentError> {
         let refresh_jwt = {
             let sess = self.session.read().await;
@@ -158,27 +161,22 @@ impl Agent {
             sess.refresh_jwt.clone()
         };
 
-        // Temporarily use refresh token for auth
-        {
-            let mut client = self.client.write().await;
-            client.set_header("Authorization", format!("Bearer {}", refresh_jwt));
-        }
-
-        let data = {
-            let client = self.client.read().await;
-            let response = client
-                .procedure("com.atproto.server.refreshSession", None, None, None)
-                .await?;
-            response.data
+        // Use per-request header for refresh — never mutate global auth state
+        let mut headers = HeadersMap::new();
+        headers.insert("Authorization".into(), format!("Bearer {}", refresh_jwt));
+        let opts = CallOptions {
+            encoding: None,
+            headers: Some(headers),
         };
 
-        let session: Session = serde_json::from_value(data)?;
+        let response = self
+            .client
+            .procedure("com.atproto.server.refreshSession", None, None, Some(&opts))
+            .await?;
 
-        {
-            let mut client = self.client.write().await;
-            client.set_header("Authorization", format!("Bearer {}", session.access_jwt));
-        }
+        let session: Session = serde_json::from_value(response.data)?;
 
+        // Atomically commit new session in a single write lock
         *self.session.write().await = Some(session.clone());
         Ok(session)
     }
@@ -196,8 +194,8 @@ impl Agent {
         nsid: &str,
         params: Option<&QueryParams>,
     ) -> Result<serde_json::Value, AgentError> {
-        let client = self.client.read().await;
-        let response = client.query(nsid, params, None).await?;
+        let opts = self.auth_call_options().await;
+        let response = self.client.query(nsid, params, opts.as_ref()).await?;
         Ok(response.data)
     }
 
@@ -207,9 +205,10 @@ impl Agent {
         nsid: &str,
         body: serde_json::Value,
     ) -> Result<serde_json::Value, AgentError> {
-        let client = self.client.read().await;
-        let response = client
-            .procedure(nsid, None, Some(XrpcBody::Json(body)), None)
+        let opts = self.auth_call_options().await;
+        let response = self
+            .client
+            .procedure(nsid, None, Some(XrpcBody::Json(body)), opts.as_ref())
             .await?;
         Ok(response.data)
     }
@@ -466,13 +465,22 @@ impl Agent {
     ) -> Result<serde_json::Value, AgentError> {
         let mut headers = HeadersMap::new();
         headers.insert("Content-Type".into(), content_type.into());
+
+        // Add auth header from session
+        if let Some(sess) = self.session.read().await.as_ref() {
+            headers.insert(
+                "Authorization".into(),
+                format!("Bearer {}", sess.access_jwt),
+            );
+        }
+
         let opts = CallOptions {
             encoding: Some(content_type.to_string()),
             headers: Some(headers),
         };
 
-        let client = self.client.read().await;
-        let response = client
+        let response = self
+            .client
             .procedure(
                 "com.atproto.repo.uploadBlob",
                 None,
@@ -559,5 +567,17 @@ mod tests {
         let ts = Agent::resolve_timestamp(None);
         assert!(ts.ends_with('Z'));
         assert!(ts.contains('T'));
+    }
+
+    #[test]
+    fn service_url_accessible_without_async() {
+        let agent = Agent::new("https://bsky.social").unwrap();
+        assert_eq!(agent.service(), "https://bsky.social/");
+    }
+
+    #[tokio::test]
+    async fn auth_call_options_none_when_not_authenticated() {
+        let agent = Agent::new("https://bsky.social").unwrap();
+        assert!(agent.auth_call_options().await.is_none());
     }
 }
