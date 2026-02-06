@@ -16,4 +16,3 @@ pub struct Input {
 }
 
 pub type Output = crate::app::bsky::ageassurance::defs::State;
-

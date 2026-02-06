@@ -17,4 +17,3 @@ pub struct Output {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_methods: Option<serde_json::Value>,
 }
-

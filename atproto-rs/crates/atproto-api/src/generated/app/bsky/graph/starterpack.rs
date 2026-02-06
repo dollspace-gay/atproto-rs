@@ -22,4 +22,3 @@ pub struct Main {
     pub list: String,
     pub name: String,
 }
-

@@ -27,4 +27,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub events: Vec<crate::tools::ozone::safelink::defs::Event>,
 }
-

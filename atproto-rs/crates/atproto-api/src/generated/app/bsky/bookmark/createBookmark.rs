@@ -11,4 +11,3 @@ pub struct Input {
     pub cid: String,
     pub uri: String,
 }
-

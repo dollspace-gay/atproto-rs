@@ -13,4 +13,3 @@ pub struct Input {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub codes: Option<Vec<String>>,
 }
-

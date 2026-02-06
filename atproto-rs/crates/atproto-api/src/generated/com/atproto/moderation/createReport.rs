@@ -36,4 +36,3 @@ pub struct ModTool {
     pub meta: Option<serde_json::Value>,
     pub name: String,
 }
-

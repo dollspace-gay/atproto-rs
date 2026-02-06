@@ -6,8 +6,7 @@ use serde::{Deserialize, Serialize};
 /// Disables embedding of this post.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DisableRule {
-}
+pub struct DisableRule {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -19,4 +18,3 @@ pub struct Main {
     pub embedding_rules: Option<Vec<serde_json::Value>>,
     pub post: String,
 }
-

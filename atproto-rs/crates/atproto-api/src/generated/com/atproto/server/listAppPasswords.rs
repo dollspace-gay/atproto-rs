@@ -19,4 +19,3 @@ pub struct AppPassword {
 pub struct Output {
     pub passwords: Vec<AppPassword>,
 }
-

@@ -18,4 +18,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub logs: Vec<serde_json::Value>,
 }
-

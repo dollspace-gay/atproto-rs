@@ -18,4 +18,3 @@ pub struct Input {
 }
 
 pub type Output = crate::tools::ozone::communication::defs::TemplateView;
-

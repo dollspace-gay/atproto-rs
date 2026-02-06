@@ -30,4 +30,3 @@ pub struct RelatedAccount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub similarities: Option<Vec<crate::tools::ozone::signature::defs::SigDetail>>,
 }
-

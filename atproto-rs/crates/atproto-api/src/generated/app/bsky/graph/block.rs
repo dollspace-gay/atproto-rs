@@ -9,4 +9,3 @@ pub struct Main {
     pub created_at: String,
     pub subject: String,
 }
-

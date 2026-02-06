@@ -21,4 +21,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub drafts: Vec<crate::app::bsky::draft::defs::DraftView>,
 }
-

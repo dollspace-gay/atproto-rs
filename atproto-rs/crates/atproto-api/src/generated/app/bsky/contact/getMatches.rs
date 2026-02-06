@@ -21,4 +21,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub matches: Vec<crate::app::bsky::actor::defs::ProfileView>,
 }
-

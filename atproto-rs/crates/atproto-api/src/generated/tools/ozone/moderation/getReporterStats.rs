@@ -16,4 +16,3 @@ pub struct Params {
 pub struct Output {
     pub stats: Vec<crate::tools::ozone::moderation::defs::ReporterStats>,
 }
-

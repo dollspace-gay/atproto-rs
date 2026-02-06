@@ -13,4 +13,3 @@ pub struct Input {
     pub service_did: String,
     pub token: String,
 }
-

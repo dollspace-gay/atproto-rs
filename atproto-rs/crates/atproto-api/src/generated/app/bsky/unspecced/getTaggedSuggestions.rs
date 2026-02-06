@@ -18,4 +18,3 @@ pub struct Suggestion {
     pub subject_type: String,
     pub tag: String,
 }
-

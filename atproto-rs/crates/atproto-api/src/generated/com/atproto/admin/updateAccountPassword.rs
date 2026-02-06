@@ -11,4 +11,3 @@ pub struct Input {
     pub did: String,
     pub password: String,
 }
-

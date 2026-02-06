@@ -11,4 +11,3 @@ pub struct Input {
     pub email: String,
     pub token: String,
 }
-

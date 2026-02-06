@@ -17,4 +17,3 @@ pub struct Input {
 pub struct Output {
     pub matches_and_contact_indexes: Vec<crate::app::bsky::contact::defs::MatchAndContactIndex>,
 }
-

@@ -19,4 +19,3 @@ pub struct Params {
 pub struct Output {
     pub labels: Vec<crate::com::atproto::label::defs::Label>,
 }
-

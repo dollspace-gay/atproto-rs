@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Update jsonwebtoken from 9 to 10 for latest security fixes and features (#24)
+- Add user-provided timestamp support to Agent methods (#23)
+- Update README authentication example to recommend OAuth (#22)
+- Improve Agent thread-safety with lock-free session access (#20)
 - Add MIT license (#19)
 - Add comprehensive README with architecture docs and usage examples (#18)
 - Build a robust AT Protocol SDK for Rust (translated from TypeScript SDK) (#1)
@@ -23,6 +27,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Set up Rust workspace structure and scaffold all crates (#2)
 
 ### Fixed
+- Fix Agent resume_session to verify before updating state (#21)
+- Fix all clippy warnings across workspace (#17)
 
 ### Changed
 - Fix all compiler warnings across workspace (#16)

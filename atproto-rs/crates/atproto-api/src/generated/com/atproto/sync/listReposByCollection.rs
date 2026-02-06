@@ -28,4 +28,3 @@ pub struct Output {
 pub struct Repo {
     pub did: String,
 }
-

@@ -27,4 +27,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub members: Vec<crate::tools::ozone::team::defs::Member>,
 }
-

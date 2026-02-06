@@ -18,4 +18,3 @@ pub struct Input {
 pub struct Output {
     pub message: crate::chat::bsky::convo::defs::MessageView,
 }
-

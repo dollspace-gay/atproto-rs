@@ -8,4 +8,3 @@ use serde::{Deserialize, Serialize};
 pub struct Main {
     pub allow_incoming: String,
 }
-

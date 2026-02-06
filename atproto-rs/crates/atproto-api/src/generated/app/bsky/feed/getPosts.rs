@@ -16,4 +16,3 @@ pub struct Params {
 pub struct Output {
     pub posts: Vec<crate::app::bsky::feed::defs::PostView>,
 }
-

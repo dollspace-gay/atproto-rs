@@ -22,4 +22,3 @@ pub struct Input {
 pub struct Output {
     pub items: Vec<crate::chat::bsky::convo::defs::MessageView>,
 }
-

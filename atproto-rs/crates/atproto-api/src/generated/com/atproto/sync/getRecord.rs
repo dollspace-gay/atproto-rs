@@ -12,4 +12,3 @@ pub struct Params {
     pub did: String,
     pub rkey: String,
 }
-

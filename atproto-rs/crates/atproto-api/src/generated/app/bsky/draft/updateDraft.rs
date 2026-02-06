@@ -10,4 +10,3 @@ use serde::{Deserialize, Serialize};
 pub struct Input {
     pub draft: crate::app::bsky::draft::defs::DraftWithId,
 }
-

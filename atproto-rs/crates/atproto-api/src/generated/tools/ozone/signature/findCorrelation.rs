@@ -16,4 +16,3 @@ pub struct Params {
 pub struct Output {
     pub details: Vec<crate::tools::ozone::signature::defs::SigDetail>,
 }
-

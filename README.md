@@ -62,16 +62,22 @@ tokio = { version = "1", features = ["full"] }
 
 ### Authenticate and Create a Post
 
+> **Note:** For third-party applications, prefer [OAuth](#oauth) via the `atproto-oauth` crate.
+> App password authentication (shown below) is suitable for personal scripts and bots.
+
 ```rust
 use atproto_api::Agent;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let agent = Agent::new("https://bsky.social");
+    let agent = Agent::new("https://bsky.social")?;
     agent.login("alice.bsky.social", "app-password").await?;
 
     let session = agent.session().await.unwrap();
     println!("Logged in as {}", session.handle);
+
+    // Create a post (timestamp auto-generated, or pass Some("2024-01-15T12:00:00.000Z"))
+    agent.post("Hello from Rust!", None, None).await?;
 
     Ok(())
 }
@@ -177,6 +183,26 @@ let mst = mst.add("app.bsky.feed.post/def456", cid.clone()).unwrap();
 
 assert_eq!(mst.leaves().len(), 2);
 ```
+
+### OAuth
+
+For public third-party applications, use the `atproto-oauth` crate which implements the full OAuth 2.0 flow with DPoP, PKCE, and Pushed Authorization Requests (PAR):
+
+```rust
+use atproto_oauth::{OAuthClient, ClientMetadata, PkceChallenge, DpopProof};
+
+// Configure your OAuth client
+let metadata = ClientMetadata {
+    client_id: "https://myapp.example.com/oauth/client-metadata.json".into(),
+    redirect_uris: vec!["https://myapp.example.com/callback".into()],
+    scope: Some("atproto transition:generic".into()),
+    ..Default::default()
+};
+
+let client = OAuthClient::new(metadata);
+```
+
+See the [`atproto-oauth`](crates/atproto-oauth) crate for the complete authorization flow.
 
 ## Examples
 

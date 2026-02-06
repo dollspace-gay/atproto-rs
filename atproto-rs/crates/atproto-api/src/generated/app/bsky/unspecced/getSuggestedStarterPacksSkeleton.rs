@@ -19,4 +19,3 @@ pub struct Params {
 pub struct Output {
     pub starter_packs: Vec<String>,
 }
-

@@ -4,7 +4,7 @@
 //! and namespace accessors for the full Lexicon API surface.
 
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 
 use atproto_xrpc::{CallOptions, HeadersMap, QueryParams, QueryValue, XrpcBody, XrpcClient};
 
@@ -41,9 +41,12 @@ pub enum AgentError {
 ///
 /// Wraps an XRPC client with session management and convenience methods
 /// for common Bluesky/AT Protocol operations.
+///
+/// Uses `RwLock` internally so multiple concurrent reads (queries) proceed
+/// in parallel — only authentication state changes require exclusive access.
 pub struct Agent {
-    client: Arc<Mutex<XrpcClient>>,
-    session: Arc<Mutex<Option<Session>>>,
+    client: Arc<RwLock<XrpcClient>>,
+    session: Arc<RwLock<Option<Session>>>,
 }
 
 impl Agent {
@@ -51,24 +54,24 @@ impl Agent {
     pub fn new(service: impl AsRef<str>) -> Result<Self, AgentError> {
         let client = XrpcClient::new(service)?;
         Ok(Agent {
-            client: Arc::new(Mutex::new(client)),
-            session: Arc::new(Mutex::new(None)),
+            client: Arc::new(RwLock::new(client)),
+            session: Arc::new(RwLock::new(None)),
         })
     }
 
     /// Get the service URL string.
     pub async fn service(&self) -> String {
-        self.client.lock().await.service_url().to_string()
+        self.client.read().await.service_url().to_string()
     }
 
     /// Get the current session's DID, if logged in.
     pub async fn did(&self) -> Option<String> {
-        self.session.lock().await.as_ref().map(|s| s.did.clone())
+        self.session.read().await.as_ref().map(|s| s.did.clone())
     }
 
     /// Get the current session, if any.
     pub async fn session(&self) -> Option<Session> {
-        self.session.lock().await.clone()
+        self.session.read().await.clone()
     }
 
     // --- Authentication ---
@@ -81,7 +84,7 @@ impl Agent {
         });
 
         let data = {
-            let client = self.client.lock().await;
+            let client = self.client.read().await;
             let response = client
                 .procedure(
                     "com.atproto.server.createSession",
@@ -95,39 +98,54 @@ impl Agent {
 
         let session: Session = serde_json::from_value(data)?;
 
-        // Set auth header
         {
-            let mut client = self.client.lock().await;
+            let mut client = self.client.write().await;
             client.set_header("Authorization", format!("Bearer {}", session.access_jwt));
         }
 
-        *self.session.lock().await = Some(session.clone());
+        *self.session.write().await = Some(session.clone());
         Ok(session)
     }
 
     /// Resume an existing session.
+    ///
+    /// Verifies the session with the server *before* updating internal state.
+    /// If verification fails, the agent remains unauthenticated.
     pub async fn resume_session(&self, session: Session) -> Result<(), AgentError> {
-        {
-            let mut client = self.client.lock().await;
-            client.set_header("Authorization", format!("Bearer {}", session.access_jwt));
-        }
-        *self.session.lock().await = Some(session);
-
-        // Verify the session is still valid
-        let data = {
-            let client = self.client.lock().await;
+        // Verify the session is valid by calling getSession with the provided token,
+        // WITHOUT updating the agent's state first. Use a per-request auth header.
+        let verified_did = {
+            let client = self.client.read().await;
+            let mut headers = HeadersMap::new();
+            headers.insert(
+                "Authorization".into(),
+                format!("Bearer {}", session.access_jwt),
+            );
+            let opts = CallOptions {
+                encoding: None,
+                headers: Some(headers),
+            };
             let response = client
-                .query("com.atproto.server.getSession", None, None)
+                .query("com.atproto.server.getSession", None, Some(&opts))
                 .await?;
-            response.data
+            response
+                .data
+                .get("did")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string())
         };
 
-        if let Some(did) = data.get("did").and_then(|v| v.as_str()) {
-            let mut sess = self.session.lock().await;
-            if let Some(s) = sess.as_mut() {
-                s.did = did.to_string();
-            }
+        // Verification succeeded — now commit state
+        let mut committed = session;
+        if let Some(did) = verified_did {
+            committed.did = did;
         }
+
+        {
+            let mut client = self.client.write().await;
+            client.set_header("Authorization", format!("Bearer {}", committed.access_jwt));
+        }
+        *self.session.write().await = Some(committed);
 
         Ok(())
     }
@@ -135,19 +153,19 @@ impl Agent {
     /// Refresh the current session tokens.
     pub async fn refresh_session(&self) -> Result<Session, AgentError> {
         let refresh_jwt = {
-            let sess = self.session.lock().await;
+            let sess = self.session.read().await;
             let sess = sess.as_ref().ok_or(AgentError::NotAuthenticated)?;
             sess.refresh_jwt.clone()
         };
 
         // Temporarily use refresh token for auth
         {
-            let mut client = self.client.lock().await;
+            let mut client = self.client.write().await;
             client.set_header("Authorization", format!("Bearer {}", refresh_jwt));
         }
 
         let data = {
-            let client = self.client.lock().await;
+            let client = self.client.read().await;
             let response = client
                 .procedure("com.atproto.server.refreshSession", None, None, None)
                 .await?;
@@ -156,13 +174,12 @@ impl Agent {
 
         let session: Session = serde_json::from_value(data)?;
 
-        // Update to new access token
         {
-            let mut client = self.client.lock().await;
+            let mut client = self.client.write().await;
             client.set_header("Authorization", format!("Bearer {}", session.access_jwt));
         }
 
-        *self.session.lock().await = Some(session.clone());
+        *self.session.write().await = Some(session.clone());
         Ok(session)
     }
 
@@ -179,7 +196,7 @@ impl Agent {
         nsid: &str,
         params: Option<&QueryParams>,
     ) -> Result<serde_json::Value, AgentError> {
-        let client = self.client.lock().await;
+        let client = self.client.read().await;
         let response = client.query(nsid, params, None).await?;
         Ok(response.data)
     }
@@ -190,7 +207,7 @@ impl Agent {
         nsid: &str,
         body: serde_json::Value,
     ) -> Result<serde_json::Value, AgentError> {
-        let client = self.client.lock().await;
+        let client = self.client.read().await;
         let response = client
             .procedure(nsid, None, Some(XrpcBody::Json(body)), None)
             .await?;
@@ -231,22 +248,31 @@ impl Agent {
         Ok(())
     }
 
+    /// Generate an ISO 8601 timestamp with millisecond precision.
     fn now_iso() -> String {
         chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+    }
+
+    /// Resolve a timestamp: use the provided value or generate one.
+    fn resolve_timestamp(created_at: Option<&str>) -> String {
+        created_at.map(String::from).unwrap_or_else(Self::now_iso)
     }
 
     // --- Post operations ---
 
     /// Create a new post.
+    ///
+    /// If `created_at` is `None`, the current time is used.
     pub async fn post(
         &self,
         text: &str,
         facets: Option<Vec<crate::rich_text::Facet>>,
+        created_at: Option<&str>,
     ) -> Result<serde_json::Value, AgentError> {
         let mut record = serde_json::json!({
             "$type": "app.bsky.feed.post",
             "text": text,
-            "createdAt": Self::now_iso(),
+            "createdAt": Self::resolve_timestamp(created_at),
         });
 
         if let Some(facets) = facets {
@@ -257,13 +283,17 @@ impl Agent {
     }
 
     /// Create a post from RichText (includes detected facets).
-    pub async fn post_rich(&self, rt: &RichText) -> Result<serde_json::Value, AgentError> {
+    pub async fn post_rich(
+        &self,
+        rt: &RichText,
+        created_at: Option<&str>,
+    ) -> Result<serde_json::Value, AgentError> {
         let facets = if rt.facets().is_empty() {
             None
         } else {
             Some(rt.facets().to_vec())
         };
-        self.post(rt.text(), facets).await
+        self.post(rt.text(), facets, created_at).await
     }
 
     /// Delete a post by AT-URI.
@@ -274,11 +304,18 @@ impl Agent {
     // --- Like / Repost ---
 
     /// Like a post.
-    pub async fn like(&self, uri: &str, cid: &str) -> Result<serde_json::Value, AgentError> {
+    ///
+    /// If `created_at` is `None`, the current time is used.
+    pub async fn like(
+        &self,
+        uri: &str,
+        cid: &str,
+        created_at: Option<&str>,
+    ) -> Result<serde_json::Value, AgentError> {
         let record = serde_json::json!({
             "$type": "app.bsky.feed.like",
             "subject": { "uri": uri, "cid": cid },
-            "createdAt": Self::now_iso(),
+            "createdAt": Self::resolve_timestamp(created_at),
         });
         self.create_record("app.bsky.feed.like", record).await
     }
@@ -289,11 +326,18 @@ impl Agent {
     }
 
     /// Repost a post.
-    pub async fn repost(&self, uri: &str, cid: &str) -> Result<serde_json::Value, AgentError> {
+    ///
+    /// If `created_at` is `None`, the current time is used.
+    pub async fn repost(
+        &self,
+        uri: &str,
+        cid: &str,
+        created_at: Option<&str>,
+    ) -> Result<serde_json::Value, AgentError> {
         let record = serde_json::json!({
             "$type": "app.bsky.feed.repost",
             "subject": { "uri": uri, "cid": cid },
-            "createdAt": Self::now_iso(),
+            "createdAt": Self::resolve_timestamp(created_at),
         });
         self.create_record("app.bsky.feed.repost", record).await
     }
@@ -306,11 +350,17 @@ impl Agent {
     // --- Follow ---
 
     /// Follow a user by DID.
-    pub async fn follow(&self, subject_did: &str) -> Result<serde_json::Value, AgentError> {
+    ///
+    /// If `created_at` is `None`, the current time is used.
+    pub async fn follow(
+        &self,
+        subject_did: &str,
+        created_at: Option<&str>,
+    ) -> Result<serde_json::Value, AgentError> {
         let record = serde_json::json!({
             "$type": "app.bsky.graph.follow",
             "subject": subject_did,
-            "createdAt": Self::now_iso(),
+            "createdAt": Self::resolve_timestamp(created_at),
         });
         self.create_record("app.bsky.graph.follow", record).await
     }
@@ -421,7 +471,7 @@ impl Agent {
             headers: Some(headers),
         };
 
-        let client = self.client.lock().await;
+        let client = self.client.read().await;
         let response = client
             .procedure(
                 "com.atproto.repo.uploadBlob",
@@ -494,7 +544,19 @@ mod tests {
     #[test]
     fn now_iso_format() {
         let ts = Agent::now_iso();
-        // Should be a valid ISO 8601 timestamp ending in Z
+        assert!(ts.ends_with('Z'));
+        assert!(ts.contains('T'));
+    }
+
+    #[test]
+    fn resolve_timestamp_with_provided() {
+        let ts = Agent::resolve_timestamp(Some("2024-01-15T12:00:00.000Z"));
+        assert_eq!(ts, "2024-01-15T12:00:00.000Z");
+    }
+
+    #[test]
+    fn resolve_timestamp_without_provided() {
+        let ts = Agent::resolve_timestamp(None);
         assert!(ts.ends_with('Z'));
         assert!(ts.contains('T'));
     }

@@ -31,4 +31,3 @@ pub struct TimelineItemSummary {
     pub event_subject_type: String,
     pub event_type: String,
 }
-

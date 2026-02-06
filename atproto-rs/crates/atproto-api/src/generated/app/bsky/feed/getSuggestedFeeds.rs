@@ -21,4 +21,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub feeds: Vec<crate::app::bsky::feed::defs::GeneratorView>,
 }
-

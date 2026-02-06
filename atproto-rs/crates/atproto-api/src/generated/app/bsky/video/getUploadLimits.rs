@@ -18,4 +18,3 @@ pub struct Output {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub remaining_daily_videos: Option<i64>,
 }
-

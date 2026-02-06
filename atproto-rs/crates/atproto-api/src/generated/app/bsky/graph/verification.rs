@@ -11,4 +11,3 @@ pub struct Main {
     pub handle: String,
     pub subject: String,
 }
-

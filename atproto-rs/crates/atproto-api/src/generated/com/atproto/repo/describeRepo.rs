@@ -20,4 +20,3 @@ pub struct Output {
     pub handle: String,
     pub handle_is_correct: bool,
 }
-

@@ -11,4 +11,3 @@ pub struct Input {
     pub account: String,
     pub email: String,
 }
-

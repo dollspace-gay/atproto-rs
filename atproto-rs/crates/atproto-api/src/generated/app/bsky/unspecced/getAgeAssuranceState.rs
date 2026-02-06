@@ -6,4 +6,3 @@ use serde::{Deserialize, Serialize};
 /// Returns the current state of the age assurance process for an account. This is used to check if the user has completed age assurance or if further action is required.
 /// XRPC Query: app.bsky.unspecced.getAgeAssuranceState
 pub type Output = crate::app::bsky::unspecced::defs::AgeAssuranceState;
-

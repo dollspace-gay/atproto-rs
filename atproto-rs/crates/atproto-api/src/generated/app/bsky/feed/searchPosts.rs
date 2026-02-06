@@ -42,4 +42,3 @@ pub struct Output {
     pub hits_total: Option<i64>,
     pub posts: Vec<crate::app::bsky::feed::defs::PostView>,
 }
-

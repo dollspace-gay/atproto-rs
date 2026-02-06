@@ -13,4 +13,3 @@ pub struct Input {
 }
 
 pub type Output = crate::tools::ozone::team::defs::Member;
-

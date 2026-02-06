@@ -19,4 +19,3 @@ pub struct Output {
     pub metadata: crate::app::bsky::ageassurance::defs::StateMetadata,
     pub state: crate::app::bsky::ageassurance::defs::State,
 }
-

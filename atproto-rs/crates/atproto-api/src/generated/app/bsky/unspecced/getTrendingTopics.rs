@@ -20,4 +20,3 @@ pub struct Output {
     pub suggested: Vec<crate::app::bsky::unspecced::defs::TrendingTopic>,
     pub topics: Vec<crate::app::bsky::unspecced::defs::TrendingTopic>,
 }
-

@@ -25,8 +25,7 @@ pub struct Output {
 /// Indicates the provided handle is available.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ResultAvailable {
-}
+pub struct ResultAvailable {}
 
 /// Indicates the provided handle is unavailable and gives suggestions of available handles.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,4 +40,3 @@ pub struct Suggestion {
     pub handle: String,
     pub method: String,
 }
-

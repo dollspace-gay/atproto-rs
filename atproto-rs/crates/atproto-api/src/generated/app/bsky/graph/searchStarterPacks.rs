@@ -22,4 +22,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub starter_packs: Vec<crate::app::bsky::graph::defs::StarterPackViewBasic>,
 }
-

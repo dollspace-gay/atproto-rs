@@ -27,4 +27,3 @@ pub struct Output {
     pub reposted_by: Vec<crate::app::bsky::actor::defs::ProfileView>,
     pub uri: String,
 }
-

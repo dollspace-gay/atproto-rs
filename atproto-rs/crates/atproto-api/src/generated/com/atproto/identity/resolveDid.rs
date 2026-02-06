@@ -16,4 +16,3 @@ pub struct Params {
 pub struct Output {
     pub did_doc: serde_json::Value,
 }
-

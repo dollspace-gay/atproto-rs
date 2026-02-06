@@ -69,4 +69,3 @@ pub struct Takedown {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strike_expires_at: Option<String>,
 }
-

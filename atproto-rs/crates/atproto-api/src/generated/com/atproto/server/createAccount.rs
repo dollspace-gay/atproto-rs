@@ -38,4 +38,3 @@ pub struct Output {
     pub handle: String,
     pub refresh_jwt: String,
 }
-

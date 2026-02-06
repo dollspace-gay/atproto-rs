@@ -17,4 +17,3 @@ pub struct Input {
 pub struct Output {
     pub token: String,
 }
-

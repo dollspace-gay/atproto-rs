@@ -17,4 +17,3 @@ pub struct Main {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subject_types: Option<Vec<crate::com::atproto::moderation::defs::SubjectType>>,
 }
-

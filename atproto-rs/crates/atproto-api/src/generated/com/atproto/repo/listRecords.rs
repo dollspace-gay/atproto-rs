@@ -33,4 +33,3 @@ pub struct Record {
     pub uri: String,
     pub value: serde_json::Value,
 }
-

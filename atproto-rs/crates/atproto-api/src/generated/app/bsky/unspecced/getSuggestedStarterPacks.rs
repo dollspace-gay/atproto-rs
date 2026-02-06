@@ -17,4 +17,3 @@ pub struct Params {
 pub struct Output {
     pub starter_packs: Vec<crate::app::bsky::graph::defs::StarterPackView>,
 }
-

@@ -63,4 +63,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub events: Vec<crate::tools::ozone::moderation::defs::ModEventView>,
 }
-

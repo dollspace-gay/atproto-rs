@@ -89,4 +89,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub subject_statuses: Vec<crate::tools::ozone::moderation::defs::SubjectStatusView>,
 }
-

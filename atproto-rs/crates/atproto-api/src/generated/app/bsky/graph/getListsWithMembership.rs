@@ -33,4 +33,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub lists_with_membership: Vec<ListWithMembership>,
 }
-

@@ -10,4 +10,3 @@ use serde::{Deserialize, Serialize};
 pub struct Output {
     pub blob: serde_json::Value,
 }
-

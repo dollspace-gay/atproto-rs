@@ -12,4 +12,3 @@ pub struct Params {
 }
 
 pub type Output = crate::com::atproto::identity::defs::IdentityInfo;
-

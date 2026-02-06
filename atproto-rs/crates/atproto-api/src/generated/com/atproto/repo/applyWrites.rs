@@ -32,8 +32,7 @@ pub struct Delete {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeleteResult {
-}
+pub struct DeleteResult {}
 
 /// Apply a batch transaction of repository creates, updates, and deletes. Requires auth, implemented by PDS.
 /// XRPC Procedure: com.atproto.repo.applyWrites
@@ -74,4 +73,3 @@ pub struct UpdateResult {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub validation_status: Option<String>,
 }
-

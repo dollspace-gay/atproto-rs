@@ -20,4 +20,3 @@ pub struct Output {
     pub actor: Option<String>,
     pub relationships: Vec<serde_json::Value>,
 }
-

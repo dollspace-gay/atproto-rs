@@ -10,4 +10,3 @@ use serde::{Deserialize, Serialize};
 pub struct Output {
     pub preferences: crate::app::bsky::notification::defs::Preferences,
 }
-

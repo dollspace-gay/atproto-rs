@@ -12,4 +12,3 @@ pub struct Params {
 }
 
 pub type Output = crate::com::atproto::admin::defs::AccountView;
-

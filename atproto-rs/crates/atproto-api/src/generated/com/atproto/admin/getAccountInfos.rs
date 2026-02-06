@@ -16,4 +16,3 @@ pub struct Params {
 pub struct Output {
     pub infos: Vec<crate::com::atproto::admin::defs::AccountView>,
 }
-

@@ -62,6 +62,4 @@ pub struct Output {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PasswordUpdated {
-}
-
+pub struct PasswordUpdated {}

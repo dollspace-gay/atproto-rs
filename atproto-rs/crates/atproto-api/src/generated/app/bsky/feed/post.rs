@@ -48,4 +48,3 @@ pub struct TextSlice {
     pub end: i64,
     pub start: i64,
 }
-

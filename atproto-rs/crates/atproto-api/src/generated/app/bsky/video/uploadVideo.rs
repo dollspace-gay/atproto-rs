@@ -10,4 +10,3 @@ use serde::{Deserialize, Serialize};
 pub struct Output {
     pub job_status: crate::app::bsky::video::defs::JobStatus,
 }
-

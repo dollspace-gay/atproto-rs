@@ -11,4 +11,3 @@ pub struct Input {
     pub name: String,
     pub values: Vec<String>,
 }
-

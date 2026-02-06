@@ -20,4 +20,3 @@ pub struct Output {
     pub rec_id: Option<i64>,
     pub suggestions: Vec<crate::app::bsky::actor::defs::ProfileView>,
 }
-

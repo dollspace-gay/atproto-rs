@@ -22,4 +22,3 @@ pub struct Main {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<serde_json::Value>,
 }
-

@@ -16,4 +16,3 @@ pub struct Main {
     pub embed: Option<serde_json::Value>,
     pub status: String,
 }
-

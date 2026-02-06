@@ -16,4 +16,3 @@ pub struct Input {
 pub struct Output {
     pub updated_count: i64,
 }
-

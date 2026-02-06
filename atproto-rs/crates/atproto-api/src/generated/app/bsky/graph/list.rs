@@ -18,4 +18,3 @@ pub struct Main {
     pub name: String,
     pub purpose: crate::app::bsky::graph::defs::ListPurpose,
 }
-

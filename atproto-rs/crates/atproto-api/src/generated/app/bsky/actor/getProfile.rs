@@ -12,4 +12,3 @@ pub struct Params {
 }
 
 pub type Output = crate::app::bsky::actor::defs::ProfileViewDetailed;
-

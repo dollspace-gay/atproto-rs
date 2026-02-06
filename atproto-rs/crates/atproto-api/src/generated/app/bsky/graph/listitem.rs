@@ -10,4 +10,3 @@ pub struct Main {
     pub list: String,
     pub subject: String,
 }
-

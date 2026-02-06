@@ -27,4 +27,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub sets: Vec<crate::tools::ozone::set::defs::SetView>,
 }
-

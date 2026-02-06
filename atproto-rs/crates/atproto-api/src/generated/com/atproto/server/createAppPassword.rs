@@ -24,4 +24,3 @@ pub struct Input {
 }
 
 pub type Output = AppPassword;
-

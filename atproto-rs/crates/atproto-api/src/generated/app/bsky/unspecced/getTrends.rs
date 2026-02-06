@@ -17,4 +17,3 @@ pub struct Params {
 pub struct Output {
     pub trends: Vec<crate::app::bsky::unspecced::defs::TrendView>,
 }
-

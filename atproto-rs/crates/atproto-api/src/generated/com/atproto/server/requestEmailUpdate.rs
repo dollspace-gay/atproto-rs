@@ -10,4 +10,3 @@ use serde::{Deserialize, Serialize};
 pub struct Output {
     pub token_required: bool,
 }
-

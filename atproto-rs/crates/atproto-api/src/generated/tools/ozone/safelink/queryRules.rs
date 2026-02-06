@@ -33,4 +33,3 @@ pub struct Output {
     pub cursor: Option<String>,
     pub rules: Vec<crate::tools::ozone::safelink::defs::UrlRule>,
 }
-
