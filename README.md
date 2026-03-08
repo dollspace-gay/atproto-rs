@@ -1,4 +1,4 @@
-# atproto-rs
+# proto-blue
 
 > **Note:** This project was generated entirely by [Claude Opus 4.6](https://www.anthropic.com/claude) as a capability test and demonstration of its coding skills. The full SDK — 14 crates, ~390 tests, code generation, and OAuth implementation — was produced by the model with no human-written code.
 
@@ -18,38 +18,38 @@ This is a faithful 1:1 translation of the official [TypeScript SDK](https://gith
 ## Crate Overview
 
 ```
-                              atproto-oauth
+                              proto-blue-oauth
                                    |
                         +----------+----------+
                         |                     |
-                   atproto-api           atproto-identity
+                   proto-blue-api           proto-blue-identity
                     |       |              |         |
-            atproto-xrpc  atproto-ws  atproto-common  atproto-crypto
+            proto-blue-xrpc  proto-blue-ws  proto-blue-common  proto-blue-crypto
                  |            |         |    |    |
-           atproto-lexicon    |    lex-json lex-cbor |
+           proto-blue-lexicon    |    lex-json lex-cbor |
                  |            |       |      |       |
-           atproto-common     +-------+------+       |
+           proto-blue-common     +-------+------+       |
               |    |                  |               |
-        atproto-syntax         atproto-lex-data       |
-                                                atproto-repo
+        proto-blue-syntax         proto-blue-lex-data       |
+                                                proto-blue-repo
 ```
 
 | Crate | Description |
 |-------|-------------|
-| [`atproto-syntax`](crates/atproto-syntax) | Validated newtypes: `Did`, `Handle`, `Nsid`, `AtUri`, `Tid`, `RecordKey`, `Datetime` |
-| [`atproto-crypto`](crates/atproto-crypto) | P-256/K-256 signing, `did:key` encoding, SHA-256 |
-| [`atproto-lex-data`](crates/atproto-lex-data) | Core data model: `LexValue` enum, `Cid`, `BlobRef` |
-| [`atproto-lex-cbor`](crates/atproto-lex-cbor) | DAG-CBOR encoding/decoding with CID tag 42 |
-| [`atproto-lex-json`](crates/atproto-lex-json) | JSON &harr; LexValue conversion (`$link`, `$bytes` encoding) |
-| [`atproto-common`](crates/atproto-common) | TID generation, DID document parsing, retry utilities, grapheme counting |
-| [`atproto-lexicon`](crates/atproto-lexicon) | Lexicon schema types, validation engine, schema registry (322 schemas) |
-| [`atproto-repo`](crates/atproto-repo) | Merkle Search Tree, CAR file read/write, BlockMap, CidSet |
-| [`atproto-xrpc`](crates/atproto-xrpc) | XRPC HTTP client (reqwest-based query/procedure calls) |
-| [`atproto-ws`](crates/atproto-ws) | WebSocket client with auto-reconnection and heartbeat |
-| [`atproto-identity`](crates/atproto-identity) | DID resolution (`did:plc`, `did:web`), handle resolution (DNS + HTTPS) |
-| [`atproto-api`](crates/atproto-api) | Generated types + Agent + RichText + Moderation engine |
-| [`atproto-codegen`](crates/atproto-codegen) | Binary that generates Rust types from Lexicon JSON schemas |
-| [`atproto-oauth`](crates/atproto-oauth) | OAuth 2.0 client: DPoP, PKCE, PAR, token lifecycle |
+| [`proto-blue-syntax`](crates/proto-blue-syntax) | Validated newtypes: `Did`, `Handle`, `Nsid`, `AtUri`, `Tid`, `RecordKey`, `Datetime` |
+| [`proto-blue-crypto`](crates/proto-blue-crypto) | P-256/K-256 signing, `did:key` encoding, SHA-256 |
+| [`proto-blue-lex-data`](crates/proto-blue-lex-data) | Core data model: `LexValue` enum, `Cid`, `BlobRef` |
+| [`proto-blue-lex-cbor`](crates/proto-blue-lex-cbor) | DAG-CBOR encoding/decoding with CID tag 42 |
+| [`proto-blue-lex-json`](crates/proto-blue-lex-json) | JSON &harr; LexValue conversion (`$link`, `$bytes` encoding) |
+| [`proto-blue-common`](crates/proto-blue-common) | TID generation, DID document parsing, retry utilities, grapheme counting |
+| [`proto-blue-lexicon`](crates/proto-blue-lexicon) | Lexicon schema types, validation engine, schema registry (322 schemas) |
+| [`proto-blue-repo`](crates/proto-blue-repo) | Merkle Search Tree, CAR file read/write, BlockMap, CidSet |
+| [`proto-blue-xrpc`](crates/proto-blue-xrpc) | XRPC HTTP client (reqwest-based query/procedure calls) |
+| [`proto-blue-ws`](crates/proto-blue-ws) | WebSocket client with auto-reconnection and heartbeat |
+| [`proto-blue-identity`](crates/proto-blue-identity) | DID resolution (`did:plc`, `did:web`), handle resolution (DNS + HTTPS) |
+| [`proto-blue-api`](crates/proto-blue-api) | Generated types + Agent + RichText + Moderation engine |
+| [`proto-blue-codegen`](crates/proto-blue-codegen) | Binary that generates Rust types from Lexicon JSON schemas |
+| [`proto-blue-oauth`](crates/proto-blue-oauth) | OAuth 2.0 client: DPoP, PKCE, PAR, token lifecycle |
 
 ## Quick Start
 
@@ -57,18 +57,18 @@ Add the crates you need to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-atproto-api = { path = "crates/atproto-api" }
-atproto-syntax = { path = "crates/atproto-syntax" }
+proto-blue-api = { path = "crates/proto-blue-api" }
+proto-blue-syntax = { path = "crates/proto-blue-syntax" }
 tokio = { version = "1", features = ["full"] }
 ```
 
 ### Authenticate and Create a Post
 
-> **Note:** For third-party applications, prefer [OAuth](#oauth) via the `atproto-oauth` crate.
+> **Note:** For third-party applications, prefer [OAuth](#oauth) via the `proto-blue-oauth` crate.
 > App password authentication (shown below) is suitable for personal scripts and bots.
 
 ```rust
-use atproto_api::Agent;
+use proto_blue_api::Agent;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -88,7 +88,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Rich Text with Facet Detection
 
 ```rust
-use atproto_api::rich_text::{RichText, FacetFeature};
+use proto_blue_api::rich_text::{RichText, FacetFeature};
 
 let mut rt = RichText::new(
     "Hello @alice.bsky.social! Check out https://bsky.app #atproto".to_string(),
@@ -110,7 +110,7 @@ for seg in &rt.segments() {
 ### Validate AT Protocol Identifiers
 
 ```rust
-use atproto_syntax::{Did, Handle, Nsid, AtUri};
+use proto_blue_syntax::{Did, Handle, Nsid, AtUri};
 
 let did = Did::new("did:plc:z72i7hdynmk6r22z27h6tvur").unwrap();
 let handle = Handle::new("alice.bsky.social").unwrap();
@@ -123,7 +123,7 @@ println!("{did} / {handle} / {nsid} / {uri}");
 ### Cryptographic Signing
 
 ```rust
-use atproto_crypto::{P256Keypair, Keypair, Signer, Verifier, format_did_key};
+use proto_blue_crypto::{P256Keypair, Keypair, Signer, Verifier, format_did_key};
 
 let kp = P256Keypair::generate();
 let did_key = format_did_key("ES256", &kp.public_key_compressed());
@@ -136,7 +136,7 @@ assert!(kp.verify(b"hello world", &sig).is_ok());
 ### Resolve a DID
 
 ```rust
-use atproto_identity::IdResolver;
+use proto_blue_identity::IdResolver;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -154,8 +154,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### DAG-CBOR Encoding
 
 ```rust
-use atproto_lex_data::LexValue;
-use atproto_lex_cbor::{encode, decode, cid_for_lex};
+use proto_blue_lex_data::LexValue;
+use proto_blue_lex_cbor::{encode, decode, cid_for_lex};
 use std::collections::BTreeMap;
 
 let mut map = BTreeMap::new();
@@ -173,9 +173,9 @@ println!("CID: {cid}");
 ### Merkle Search Tree
 
 ```rust
-use atproto_repo::MstNode;
-use atproto_lex_cbor::cid_for_lex;
-use atproto_lex_data::LexValue;
+use proto_blue_repo::MstNode;
+use proto_blue_lex_cbor::cid_for_lex;
+use proto_blue_lex_data::LexValue;
 
 let cid = cid_for_lex(&LexValue::String("test".into())).unwrap();
 
@@ -188,10 +188,10 @@ assert_eq!(mst.leaves().len(), 2);
 
 ### OAuth
 
-For public third-party applications, use the `atproto-oauth` crate which implements the full OAuth 2.0 flow with DPoP, PKCE, and Pushed Authorization Requests (PAR):
+For public third-party applications, use the `proto-blue-oauth` crate which implements the full OAuth 2.0 flow with DPoP, PKCE, and Pushed Authorization Requests (PAR):
 
 ```rust
-use atproto_oauth::{OAuthClient, ClientMetadata, PkceChallenge, DpopProof};
+use proto_blue_oauth::{OAuthClient, ClientMetadata, PkceChallenge, DpopProof};
 
 // Configure your OAuth client
 let metadata = ClientMetadata {
@@ -204,7 +204,7 @@ let metadata = ClientMetadata {
 let client = OAuthClient::new(metadata);
 ```
 
-See the [`atproto-oauth`](crates/atproto-oauth) crate for the complete authorization flow.
+See the [`proto-blue-oauth`](crates/proto-blue-oauth) crate for the complete authorization flow.
 
 ## Examples
 
@@ -237,7 +237,7 @@ The crates are organized into dependency layers to minimize coupling:
 
 ### Code Generation
 
-The `atproto-codegen` binary reads 322 Lexicon JSON schemas from the [`lexicons/`](lexicons/) directory and generates Rust types into `atproto-api/src/generated/`. Generated types follow AT Protocol naming conventions:
+The `proto-blue-codegen` binary reads 322 Lexicon JSON schemas from the [`lexicons/`](lexicons/) directory and generates Rust types into `proto-blue-api/src/generated/`. Generated types follow AT Protocol naming conventions:
 
 - **Objects** become `#[derive(Serialize, Deserialize)]` structs with `camelCase` serde renaming
 - **Unions** become tagged enums with `#[serde(tag = "$type")]`
@@ -247,7 +247,7 @@ The `atproto-codegen` binary reads 322 Lexicon JSON schemas from the [`lexicons/
 To regenerate:
 
 ```bash
-cargo run --bin atproto-codegen -- --lexicons lexicons --output crates/atproto-api/src/generated
+cargo run --bin proto-blue-codegen -- --lexicons lexicons --output crates/proto-blue-api/src/generated
 ```
 
 ### Key Design Decisions
@@ -268,7 +268,7 @@ cargo run --bin atproto-codegen -- --lexicons lexicons --output crates/atproto-a
 cargo test --workspace
 
 # Run tests for a specific crate
-cargo test -p atproto-syntax
+cargo test -p proto-blue-syntax
 
 # Run integration tests (requires network)
 cargo test --workspace -- --ignored

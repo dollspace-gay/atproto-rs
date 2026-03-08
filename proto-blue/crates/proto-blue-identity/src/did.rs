@@ -77,7 +77,7 @@ impl DidResolver {
     }
 
     /// Resolve a DID and extract AT Protocol-specific data.
-    pub async fn resolve_proto_blue_data(
+    pub async fn resolve_atproto_data(
         &self,
         did: &str,
         force_refresh: bool,
@@ -260,7 +260,7 @@ mod tests {
                 "publicKeyMultibase": "zDnaerDaTF5BXEavCrfRZEk316dpbLsfPDZ3WJ5hRTPFU2169"
             }],
             "service": [{
-                "id": "#proto_blue_pds",
+                "id": "#atproto_pds",
                 "type": "AtprotoPersonalDataServer",
                 "serviceEndpoint": "https://bsky.social"
             }]
@@ -280,7 +280,7 @@ mod tests {
             "alsoKnownAs": ["at://test.bsky.social"],
             "verificationMethod": [],
             "service": [{
-                "id": "#proto_blue_pds",
+                "id": "#atproto_pds",
                 "type": "AtprotoPersonalDataServer",
                 "serviceEndpoint": "https://bsky.social"
             }]
@@ -302,7 +302,7 @@ mod tests {
                 "publicKeyMultibase": "zAbc123"
             }],
             "service": [{
-                "id": "#proto_blue_pds",
+                "id": "#atproto_pds",
                 "type": "AtprotoPersonalDataServer",
                 "serviceEndpoint": "https://bsky.social"
             }]
