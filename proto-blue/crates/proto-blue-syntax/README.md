@@ -36,4 +36,4 @@ let uri = AtUri::new("at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.post/a
 
 Licensed under MIT OR Apache-2.0.
 
-Part of the [proto-blue](https://github.com/user/atproto-rs) AT Protocol SDK for Rust.
+Part of the [proto-blue](https://github.com/dollspace-gay/proto-blue) AT Protocol SDK for Rust.

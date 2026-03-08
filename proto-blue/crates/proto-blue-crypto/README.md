@@ -37,4 +37,4 @@ let did_key = format_did_key("ES256", &kp.public_key_compressed());
 
 Licensed under MIT OR Apache-2.0.
 
-Part of the [proto-blue](https://github.com/user/atproto-rs) AT Protocol SDK for Rust.
+Part of the [proto-blue](https://github.com/dollspace-gay/proto-blue) AT Protocol SDK for Rust.
