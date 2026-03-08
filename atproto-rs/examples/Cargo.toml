@@ -6,16 +6,16 @@ publish = false
 rust-version = "1.85"
 
 [dependencies]
-proto-blue-syntax = { path = "../crates/atproto-syntax" }
-proto-blue-crypto = { path = "../crates/atproto-crypto" }
-proto-blue-lex-data = { path = "../crates/atproto-lex-data" }
-proto-blue-lex-cbor = { path = "../crates/atproto-lex-cbor" }
-proto-blue-lex-json = { path = "../crates/atproto-lex-json" }
-proto-blue-common = { path = "../crates/atproto-common" }
-proto-blue-repo = { path = "../crates/atproto-repo" }
-proto-blue-xrpc = { path = "../crates/atproto-xrpc" }
-proto-blue-identity = { path = "../crates/atproto-identity" }
-proto-blue-api = { path = "../crates/atproto-api" }
-proto-blue-oauth = { path = "../crates/atproto-oauth" }
+proto-blue-syntax = { path = "../crates/proto-blue-syntax" }
+proto-blue-crypto = { path = "../crates/proto-blue-crypto" }
+proto-blue-lex-data = { path = "../crates/proto-blue-lex-data" }
+proto-blue-lex-cbor = { path = "../crates/proto-blue-lex-cbor" }
+proto-blue-lex-json = { path = "../crates/proto-blue-lex-json" }
+proto-blue-common = { path = "../crates/proto-blue-common" }
+proto-blue-repo = { path = "../crates/proto-blue-repo" }
+proto-blue-xrpc = { path = "../crates/proto-blue-xrpc" }
+proto-blue-identity = { path = "../crates/proto-blue-identity" }
+proto-blue-api = { path = "../crates/proto-blue-api" }
+proto-blue-oauth = { path = "../crates/proto-blue-oauth" }
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }

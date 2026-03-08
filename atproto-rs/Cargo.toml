@@ -1,19 +1,19 @@
 [workspace]
 members = [
-    "crates/atproto-syntax",
-    "crates/atproto-crypto",
-    "crates/atproto-lex-data",
-    "crates/atproto-lex-cbor",
-    "crates/atproto-lex-json",
-    "crates/atproto-common",
-    "crates/atproto-lexicon",
-    "crates/atproto-repo",
-    "crates/atproto-xrpc",
-    "crates/atproto-ws",
-    "crates/atproto-identity",
-    "crates/atproto-api",
-    "crates/atproto-codegen",
-    "crates/atproto-oauth",
+    "crates/proto-blue-syntax",
+    "crates/proto-blue-crypto",
+    "crates/proto-blue-lex-data",
+    "crates/proto-blue-lex-cbor",
+    "crates/proto-blue-lex-json",
+    "crates/proto-blue-common",
+    "crates/proto-blue-lexicon",
+    "crates/proto-blue-repo",
+    "crates/proto-blue-xrpc",
+    "crates/proto-blue-ws",
+    "crates/proto-blue-identity",
+    "crates/proto-blue-api",
+    "crates/proto-blue-codegen",
+    "crates/proto-blue-oauth",
     "examples",
 ]
 resolver = "2"
@@ -27,19 +27,19 @@ rust-version = "1.85"
 
 [workspace.dependencies]
 # Internal crates
-proto-blue-syntax = { path = "crates/atproto-syntax" }
-proto-blue-crypto = { path = "crates/atproto-crypto" }
-proto-blue-lex-data = { path = "crates/atproto-lex-data" }
-proto-blue-lex-cbor = { path = "crates/atproto-lex-cbor" }
-proto-blue-lex-json = { path = "crates/atproto-lex-json" }
-proto-blue-common = { path = "crates/atproto-common" }
-proto-blue-lexicon = { path = "crates/atproto-lexicon" }
-proto-blue-repo = { path = "crates/atproto-repo" }
-proto-blue-xrpc = { path = "crates/atproto-xrpc" }
-proto-blue-ws = { path = "crates/atproto-ws" }
-proto-blue-identity = { path = "crates/atproto-identity" }
-proto-blue-api = { path = "crates/atproto-api" }
-proto-blue-oauth = { path = "crates/atproto-oauth" }
+proto-blue-syntax = { path = "crates/proto-blue-syntax" }
+proto-blue-crypto = { path = "crates/proto-blue-crypto" }
+proto-blue-lex-data = { path = "crates/proto-blue-lex-data" }
+proto-blue-lex-cbor = { path = "crates/proto-blue-lex-cbor" }
+proto-blue-lex-json = { path = "crates/proto-blue-lex-json" }
+proto-blue-common = { path = "crates/proto-blue-common" }
+proto-blue-lexicon = { path = "crates/proto-blue-lexicon" }
+proto-blue-repo = { path = "crates/proto-blue-repo" }
+proto-blue-xrpc = { path = "crates/proto-blue-xrpc" }
+proto-blue-ws = { path = "crates/proto-blue-ws" }
+proto-blue-identity = { path = "crates/proto-blue-identity" }
+proto-blue-api = { path = "crates/proto-blue-api" }
+proto-blue-oauth = { path = "crates/proto-blue-oauth" }
 
 # External dependencies
 serde = { version = "1", features = ["derive"] }
