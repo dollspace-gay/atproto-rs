@@ -130,3 +130,73 @@ proptest! {
         prop_assert_eq!(parsed.jwt_alg, "ES256K");
     }
 }
+
+// --- Keypair trait tests ---
+
+#[test]
+fn p256_implements_keypair_did_starts_with_did_key_z() {
+    let keypair = proto_blue_crypto::P256Keypair::generate();
+    let did = keypair.did();
+    assert!(
+        did.starts_with("did:key:z"),
+        "P256Keypair::did() should start with 'did:key:z', got: {did}"
+    );
+}
+
+#[test]
+fn p256_public_key_compressed_is_33_bytes() {
+    let keypair = proto_blue_crypto::P256Keypair::generate();
+    let compressed = keypair.public_key_compressed();
+    assert_eq!(
+        compressed.len(),
+        33,
+        "P256 compressed public key should be 33 bytes, got: {}",
+        compressed.len()
+    );
+}
+
+#[test]
+fn k256_implements_keypair_did_starts_with_did_key_z() {
+    let keypair = proto_blue_crypto::K256Keypair::generate();
+    let did = keypair.did();
+    assert!(
+        did.starts_with("did:key:z"),
+        "K256Keypair::did() should start with 'did:key:z', got: {did}"
+    );
+}
+
+#[test]
+fn k256_public_key_compressed_is_33_bytes() {
+    let keypair = proto_blue_crypto::K256Keypair::generate();
+    let compressed = keypair.public_key_compressed();
+    assert_eq!(
+        compressed.len(),
+        33,
+        "K256 compressed public key should be 33 bytes, got: {}",
+        compressed.len()
+    );
+}
+
+#[test]
+fn k256_export_private_key_is_32_bytes() {
+    let keypair = proto_blue_crypto::K256Keypair::generate();
+    let exported = keypair.export_private_key();
+    assert_eq!(
+        exported.len(),
+        32,
+        "K256 exported private key should be 32 bytes, got: {}",
+        exported.len()
+    );
+}
+
+#[test]
+fn p256_jwt_alg_returns_es256() {
+    let keypair = proto_blue_crypto::P256Keypair::generate();
+    assert_eq!(keypair.jwt_alg(), "ES256");
+}
+
+#[test]
+fn k256_jwt_alg_returns_es256k() {
+    let keypair = proto_blue_crypto::K256Keypair::generate();
+    assert_eq!(keypair.jwt_alg(), "ES256K");
+}

@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Add top-level proto-blue facade crate that re-exports all SDK modules (#14)
 - Add user-provided timestamp support to Agent methods (#23)
 - Add MIT license (#19)
 - Add comprehensive README with architecture docs and usage examples (#18)

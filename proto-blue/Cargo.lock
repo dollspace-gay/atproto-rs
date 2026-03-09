@@ -1497,6 +1497,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "proto-blue"
+version = "0.1.0"
+dependencies = [
+ "proptest",
+ "proto-blue-api",
+ "proto-blue-common",
+ "proto-blue-crypto",
+ "proto-blue-identity",
+ "proto-blue-lex-cbor",
+ "proto-blue-lex-data",
+ "proto-blue-lex-json",
+ "proto-blue-lexicon",
+ "proto-blue-oauth",
+ "proto-blue-repo",
+ "proto-blue-syntax",
+ "proto-blue-ws",
+ "proto-blue-xrpc",
+ "serde_json",
+]
+
+[[package]]
 name = "proto-blue-api"
 version = "0.1.0"
 dependencies = [
@@ -1533,6 +1554,7 @@ name = "proto-blue-common"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "proptest",
  "proto-blue-lex-cbor",
  "proto-blue-lex-data",
  "proto-blue-lex-json",
@@ -1611,6 +1633,7 @@ name = "proto-blue-lex-data"
 version = "0.1.0"
 dependencies = [
  "multibase",
+ "proptest",
  "serde",
  "serde_json",
  "sha2",
@@ -1623,6 +1646,7 @@ name = "proto-blue-lex-json"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "proptest",
  "proto-blue-lex-data",
  "serde_json",
  "thiserror",
@@ -1632,6 +1656,7 @@ dependencies = [
 name = "proto-blue-lexicon"
 version = "0.1.0"
 dependencies = [
+ "proptest",
  "proto-blue-common",
  "proto-blue-lex-data",
  "proto-blue-syntax",
@@ -1647,6 +1672,7 @@ dependencies = [
  "base64",
  "chrono",
  "p256",
+ "proptest",
  "proto-blue-crypto",
  "proto-blue-identity",
  "proto-blue-xrpc",
@@ -1707,6 +1733,7 @@ dependencies = [
 name = "proto-blue-xrpc"
 version = "0.1.0"
 dependencies = [
+ "proptest",
  "proto-blue-lexicon",
  "reqwest",
  "serde",

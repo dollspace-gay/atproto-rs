@@ -24,3 +24,7 @@ proto-blue-ws = { workspace = true }
 proto-blue-identity = { workspace = true }
 proto-blue-api = { workspace = true }
 proto-blue-oauth = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+proptest = { workspace = true }

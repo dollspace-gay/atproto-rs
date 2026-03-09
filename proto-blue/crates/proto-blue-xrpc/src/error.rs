@@ -150,3 +150,239 @@ pub enum Error {
     #[error("{0}")]
     Other(String),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ── ResponseType::from_http_status() – explicit codes ────────────
+
+    #[test]
+    fn from_http_status_200() {
+        assert_eq!(ResponseType::from_http_status(200), ResponseType::Success);
+    }
+
+    #[test]
+    fn from_http_status_400() {
+        assert_eq!(ResponseType::from_http_status(400), ResponseType::InvalidRequest);
+    }
+
+    #[test]
+    fn from_http_status_401() {
+        assert_eq!(ResponseType::from_http_status(401), ResponseType::AuthenticationRequired);
+    }
+
+    #[test]
+    fn from_http_status_403() {
+        assert_eq!(ResponseType::from_http_status(403), ResponseType::Forbidden);
+    }
+
+    #[test]
+    fn from_http_status_404() {
+        assert_eq!(ResponseType::from_http_status(404), ResponseType::XRPCNotSupported);
+    }
+
+    #[test]
+    fn from_http_status_406() {
+        assert_eq!(ResponseType::from_http_status(406), ResponseType::NotAcceptable);
+    }
+
+    #[test]
+    fn from_http_status_413() {
+        assert_eq!(ResponseType::from_http_status(413), ResponseType::PayloadTooLarge);
+    }
+
+    #[test]
+    fn from_http_status_415() {
+        assert_eq!(ResponseType::from_http_status(415), ResponseType::UnsupportedMediaType);
+    }
+
+    #[test]
+    fn from_http_status_429() {
+        assert_eq!(ResponseType::from_http_status(429), ResponseType::RateLimitExceeded);
+    }
+
+    #[test]
+    fn from_http_status_500() {
+        assert_eq!(ResponseType::from_http_status(500), ResponseType::InternalServerError);
+    }
+
+    #[test]
+    fn from_http_status_501() {
+        assert_eq!(ResponseType::from_http_status(501), ResponseType::MethodNotImplemented);
+    }
+
+    #[test]
+    fn from_http_status_502() {
+        assert_eq!(ResponseType::from_http_status(502), ResponseType::UpstreamFailure);
+    }
+
+    #[test]
+    fn from_http_status_503() {
+        assert_eq!(ResponseType::from_http_status(503), ResponseType::NotEnoughResources);
+    }
+
+    #[test]
+    fn from_http_status_504() {
+        assert_eq!(ResponseType::from_http_status(504), ResponseType::UpstreamTimeout);
+    }
+
+    // ── ResponseType::from_http_status() – range fallbacks ───────────
+
+    #[test]
+    fn from_http_status_201_maps_to_success() {
+        assert_eq!(ResponseType::from_http_status(201), ResponseType::Success);
+    }
+
+    #[test]
+    fn from_http_status_204_maps_to_success() {
+        assert_eq!(ResponseType::from_http_status(204), ResponseType::Success);
+    }
+
+    #[test]
+    fn from_http_status_450_maps_to_invalid_request() {
+        assert_eq!(ResponseType::from_http_status(450), ResponseType::InvalidRequest);
+    }
+
+    #[test]
+    fn from_http_status_499_maps_to_invalid_request() {
+        assert_eq!(ResponseType::from_http_status(499), ResponseType::InvalidRequest);
+    }
+
+    #[test]
+    fn from_http_status_550_maps_to_internal_server_error() {
+        assert_eq!(ResponseType::from_http_status(550), ResponseType::InternalServerError);
+    }
+
+    #[test]
+    fn from_http_status_599_maps_to_internal_server_error() {
+        assert_eq!(ResponseType::from_http_status(599), ResponseType::InternalServerError);
+    }
+
+    #[test]
+    fn from_http_status_100_maps_to_xrpc_not_supported() {
+        // codes outside 2xx/4xx/5xx fall to the catch-all
+        assert_eq!(ResponseType::from_http_status(100), ResponseType::XRPCNotSupported);
+    }
+
+    // ── ResponseType::name() ─────────────────────────────────────────
+
+    #[test]
+    fn name_returns_correct_strings() {
+        assert_eq!(ResponseType::Unknown.name(), "Unknown");
+        assert_eq!(ResponseType::InvalidResponse.name(), "Invalid Response");
+        assert_eq!(ResponseType::Success.name(), "Success");
+        assert_eq!(ResponseType::InvalidRequest.name(), "Invalid Request");
+        assert_eq!(ResponseType::AuthenticationRequired.name(), "Authentication Required");
+        assert_eq!(ResponseType::Forbidden.name(), "Forbidden");
+        assert_eq!(ResponseType::XRPCNotSupported.name(), "XRPC Not Supported");
+        assert_eq!(ResponseType::NotAcceptable.name(), "Not Acceptable");
+        assert_eq!(ResponseType::PayloadTooLarge.name(), "Payload Too Large");
+        assert_eq!(ResponseType::UnsupportedMediaType.name(), "Unsupported Media Type");
+        assert_eq!(ResponseType::RateLimitExceeded.name(), "Rate Limit Exceeded");
+        assert_eq!(ResponseType::InternalServerError.name(), "Internal Server Error");
+        assert_eq!(ResponseType::MethodNotImplemented.name(), "Method Not Implemented");
+        assert_eq!(ResponseType::UpstreamFailure.name(), "Upstream Failure");
+        assert_eq!(ResponseType::NotEnoughResources.name(), "Not Enough Resources");
+        assert_eq!(ResponseType::UpstreamTimeout.name(), "Upstream Timeout");
+    }
+
+    // ── ResponseType Display ─────────────────────────────────────────
+
+    #[test]
+    fn display_uses_name() {
+        assert_eq!(format!("{}", ResponseType::Success), "Success");
+        assert_eq!(format!("{}", ResponseType::Forbidden), "Forbidden");
+        assert_eq!(
+            format!("{}", ResponseType::InternalServerError),
+            "Internal Server Error"
+        );
+    }
+
+    // ── XrpcError::from_status() ─────────────────────────────────────
+
+    #[test]
+    fn xrpc_error_from_status() {
+        let err = XrpcError::from_status(404, Some("NotFound".into()), Some("gone".into()));
+        assert_eq!(err.status, ResponseType::XRPCNotSupported);
+        assert_eq!(err.error.as_deref(), Some("NotFound"));
+        assert_eq!(err.message.as_deref(), Some("gone"));
+        assert!(err.headers.is_none());
+    }
+
+    #[test]
+    fn xrpc_error_from_status_no_error_no_message() {
+        let err = XrpcError::from_status(500, None, None);
+        assert_eq!(err.status, ResponseType::InternalServerError);
+        assert!(err.error.is_none());
+        assert!(err.message.is_none());
+    }
+
+    // ── XrpcError::new() ─────────────────────────────────────────────
+
+    #[test]
+    fn xrpc_error_new() {
+        let err = XrpcError::new(ResponseType::Forbidden, "access denied");
+        assert_eq!(err.status, ResponseType::Forbidden);
+        assert_eq!(err.error.as_deref(), Some("Forbidden"));
+        assert_eq!(err.message.as_deref(), Some("access denied"));
+        assert!(err.headers.is_none());
+    }
+
+    // ── XrpcError::is_error() ────────────────────────────────────────
+
+    #[test]
+    fn is_error_matching() {
+        let err = XrpcError::from_status(401, Some("InvalidToken".into()), None);
+        assert!(err.is_error("InvalidToken"));
+        assert!(!err.is_error("ExpiredToken"));
+    }
+
+    #[test]
+    fn is_error_when_none() {
+        let err = XrpcError::from_status(500, None, None);
+        assert!(!err.is_error("anything"));
+    }
+
+    // ── XrpcError Display ────────────────────────────────────────────
+
+    #[test]
+    fn display_with_message() {
+        let err = XrpcError::from_status(400, Some("BadInput".into()), Some("invalid field".into()));
+        assert_eq!(format!("{}", err), "invalid field");
+    }
+
+    #[test]
+    fn display_with_error_only() {
+        let err = XrpcError::from_status(400, Some("BadInput".into()), None);
+        assert_eq!(format!("{}", err), "BadInput");
+    }
+
+    #[test]
+    fn display_with_neither() {
+        let err = XrpcError::from_status(500, None, None);
+        assert_eq!(format!("{}", err), "Internal Server Error");
+    }
+
+    // ── Error enum From conversions ──────────────────────────────────
+
+    #[test]
+    fn error_from_xrpc_error() {
+        let xrpc = XrpcError::new(ResponseType::Unknown, "test");
+        let err: Error = xrpc.into();
+        match err {
+            Error::Xrpc(e) => assert_eq!(e.status, ResponseType::Unknown),
+            _ => panic!("expected Xrpc variant"),
+        }
+    }
+
+    #[test]
+    fn error_from_serde_json_error() {
+        let json_err = serde_json::from_str::<serde_json::Value>("not json").unwrap_err();
+        let err: Error = json_err.into();
+        match err {
+            Error::Json(_) => {} // ok
+            _ => panic!("expected Json variant"),
+        }
+    }
+}

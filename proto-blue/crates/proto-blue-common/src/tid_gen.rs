@@ -81,7 +81,7 @@ fn tid_from_time(timestamp: u64, clock_id: u32) -> Tid {
 }
 
 /// Encode a number to base32-sortable string.
-fn s32_encode(mut i: u64) -> String {
+pub fn s32_encode(mut i: u64) -> String {
     if i == 0 {
         return String::new();
     }
@@ -96,7 +96,7 @@ fn s32_encode(mut i: u64) -> String {
 }
 
 /// Decode a base32-sortable string to a number.
-fn s32_decode(s: &str) -> u64 {
+pub fn s32_decode(s: &str) -> u64 {
     let mut i: u64 = 0;
     for c in s.bytes() {
         let idx = S32_CHAR.iter().position(|&b| b == c).unwrap_or(0);

@@ -34,5 +34,5 @@ pub use did_doc::{
 };
 pub use retry::{RetryOptions, backoff_ms, retry, retry_all};
 pub use strings::{grapheme_len, utf8_len};
-pub use tid_gen::next_tid;
+pub use tid_gen::{next_tid, s32_decode, s32_encode};
 pub use times::{DAY, HOUR, MINUTE, SECOND};

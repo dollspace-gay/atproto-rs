@@ -15,3 +15,6 @@ proto-blue-lex-data = { workspace = true }
 serde_json = { workspace = true }
 base64 = { workspace = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
