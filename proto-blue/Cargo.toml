@@ -14,6 +14,7 @@ members = [
     "crates/proto-blue-api",
     "crates/proto-blue-codegen",
     "crates/proto-blue-oauth",
+    "crates/proto-blue",
     "examples",
 ]
 resolver = "2"

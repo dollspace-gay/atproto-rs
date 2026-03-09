@@ -1,0 +1,26 @@
+[package]
+name = "proto-blue"
+description = "AT Protocol SDK for Rust — full-stack client for Bluesky and the AT Protocol"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+keywords = ["atproto", "bluesky", "sdk", "decentralized", "social"]
+categories = ["api-bindings", "web-programming::http-client"]
+
+[dependencies]
+proto-blue-syntax = { workspace = true }
+proto-blue-crypto = { workspace = true }
+proto-blue-lex-data = { workspace = true }
+proto-blue-lex-cbor = { workspace = true }
+proto-blue-lex-json = { workspace = true }
+proto-blue-common = { workspace = true }
+proto-blue-lexicon = { workspace = true }
+proto-blue-repo = { workspace = true }
+proto-blue-xrpc = { workspace = true }
+proto-blue-ws = { workspace = true }
+proto-blue-identity = { workspace = true }
+proto-blue-api = { workspace = true }
+proto-blue-oauth = { workspace = true }
